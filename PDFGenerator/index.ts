@@ -1,12 +1,16 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
+import "@fluentui/web-components";
+import { provideFluentDesignSystem, fluentButton, fluentDesignSystemProvider } from "@fluentui/web-components";
+import { updateButtonProperties, updateProviderDimensions } from "./button/styles";
 
 export class PDFGenerator implements ComponentFramework.StandardControl<IInputs, IOutputs> {
-    /**
-     * Empty constructor.
-     */
-    constructor() {
-        // Empty
-    }
+    private container: HTMLDivElement;
+    private context: ComponentFramework.Context<IInputs>;
+    private button: HTMLElement;
+    private provider: HTMLElement;
+    private notifyOutputChanged: () => void;
+
+    constructor() { /* */ }
 
     /**
      * Used to initialize the control instance. Controls can kick off remote server calls and other initialization actions here.
@@ -22,7 +26,29 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
         state: ComponentFramework.Dictionary,
         container: HTMLDivElement
     ): void {
-        // Add control initialization code
+        this.container = container;
+        this.context = context;
+
+        const designSystem = provideFluentDesignSystem();
+        designSystem.register(fluentButton(), fluentDesignSystemProvider());
+
+        this.provider = document.createElement("fluent-design-system-provider");
+        this.provider.style.display = "inline-block";
+        updateProviderDimensions(this.provider, this.context.parameters);
+
+        this.button = document.createElement("fluent-button");
+        this.button.textContent = "Gerar PDF";
+        this.button.style.width = "100%";
+        this.button.style.height = "100%";
+        this.button.style.boxSizing = "border-box";
+        this.button.setAttribute("appearance", "accent");
+
+        this.button.addEventListener("click", () => {
+            console.log("PDF gerado");
+        });
+
+        this.provider.appendChild(this.button);
+        this.container.appendChild(this.provider);
     }
 
 
@@ -31,7 +57,9 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
      * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
      */
     public updateView(context: ComponentFramework.Context<IInputs>): void {
-        // Add code to update control view
+        this.context = context;
+        updateButtonProperties(this.button, this.provider, this.context.parameters);
+        updateProviderDimensions(this.provider, this.context.parameters);
     }
 
     /**
@@ -42,11 +70,8 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
         return {};
     }
 
-    /**
-     * Called when the control is to be removed from the DOM tree. Controls should use this call for cleanup.
-     * i.e. cancelling any pending remote calls, removing listeners, etc.
-     */
     public destroy(): void {
-        // Add code to cleanup control if necessary
+        // this.button.removeEventListener("click", this.onButtonClick);
+        this.container.innerHTML = "";
     }
 }
