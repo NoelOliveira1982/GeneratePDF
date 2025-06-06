@@ -1,11 +1,13 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
+import { generatePDF } from "./generate-pdf";
 
 export class PDFGenerator implements ComponentFramework.StandardControl<IInputs, IOutputs> {
-    /**
-     * Empty constructor.
-     */
+    private _notifyOutputChanged: () => void;
+    private _container: HTMLDivElement;
+    private _isProcessing: boolean;
+
     constructor() {
-        // Empty
+        this._isProcessing = false;
     }
 
     /**
@@ -22,7 +24,9 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
         state: ComponentFramework.Dictionary,
         container: HTMLDivElement
     ): void {
-        // Add control initialization code
+        this._notifyOutputChanged = notifyOutputChanged;
+        this._container = container;
+        this._container.innerHTML = "";
     }
 
 
@@ -31,7 +35,25 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
      * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
      */
     public updateView(context: ComponentFramework.Context<IInputs>): void {
-        // Add code to update control view
+        if (this._isProcessing.valueOf() === true) return;
+
+        if (context.parameters.process.raw.valueOf() === false) return;
+        if (!context.parameters.contentJson.raw) return;
+
+        this._isProcessing = true;
+        this._notifyOutputChanged();
+
+        generatePDF(context.parameters.contentJson.raw)
+            .then(() => {
+                this._isProcessing = false;
+                this._notifyOutputChanged();
+                return;
+            })
+            .catch(error => {
+                console.error("PDF Generation Error:", error);
+                this._isProcessing = false;
+                this._notifyOutputChanged();
+            });
     }
 
     /**
@@ -39,7 +61,10 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
      * @returns an object based on nomenclature defined in manifest, expecting object[s] for property marked as "bound" or "output"
      */
     public getOutputs(): IOutputs {
-        return {};
+        return {
+            isProcessing: this._isProcessing,
+            process: this._isProcessing
+        };
     }
 
     /**
