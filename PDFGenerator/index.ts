@@ -5,9 +5,11 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
     private _notifyOutputChanged: () => void;
     private _container: HTMLDivElement;
     private _isProcessing: boolean;
+    private _process: boolean;
 
     constructor() {
         this._isProcessing = false;
+        this._process = false;
     }
 
     /**
@@ -35,23 +37,29 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
      * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
      */
     public updateView(context: ComponentFramework.Context<IInputs>): void {
-        if (this._isProcessing.valueOf() === true) return;
+        if (this._isProcessing) return;
 
-        if (context.parameters.process.raw.valueOf() === false) return;
+        const process = context.parameters.process.raw;
+        const docName = context.parameters.documentName.raw ?? "file";
+
+        if (process.valueOf() === false) return;
         if (!context.parameters.contentJson.raw) return;
 
         this._isProcessing = true;
+        this._process = false;
         this._notifyOutputChanged();
 
-        generatePDF(context.parameters.contentJson.raw)
+        generatePDF(context.parameters.contentJson.raw, docName)
             .then(() => {
                 this._isProcessing = false;
+                this._process = false;
                 this._notifyOutputChanged();
                 return;
             })
             .catch(error => {
                 console.error("PDF Generation Error:", error);
                 this._isProcessing = false;
+                this._process = false;
                 this._notifyOutputChanged();
             });
     }
@@ -63,7 +71,7 @@ export class PDFGenerator implements ComponentFramework.StandardControl<IInputs,
     public getOutputs(): IOutputs {
         return {
             isProcessing: this._isProcessing,
-            process: this._isProcessing
+            process: this._process
         };
     }
 

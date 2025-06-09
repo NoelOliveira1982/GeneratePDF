@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="Noels" constructor="PDFGenerator" version="0.0.1"
+  <control namespace="Noels" constructor="PDFGenerator" version="0.0.2"
     display-name-key="PDFGenerator" description-key="PDFGenerator description"
     control-type="standard">
     <external-service-usage enabled="false">
@@ -14,6 +14,9 @@
       required="true" default-value="false" />
     <property name="contentJson" display-name-key="Content JSON"
       description-key="Definição completa do PDF em formato PDFMake" of-type="SingleLine.TextArea"
+      usage="input" required="true" />
+    <property name="documentName" display-name-key="Document Name"
+      description-key="Nome do arquivo a ser baixado" of-type="SingleLine.Text"
       usage="input" required="true" />
 
     <resources>

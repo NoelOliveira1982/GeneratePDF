@@ -22,7 +22,7 @@ export function parseContentJson(jsonString: string): TDocumentDefinitions {
   }
 }
 
-export async function generatePDF(contentJson: string): Promise<void> {
+export async function generatePDF(contentJson: string, docName: string): Promise<void> {
   try {
     if (!contentJson) {
       throw new Error("JSON de conteúdo não fornecido");
@@ -30,7 +30,7 @@ export async function generatePDF(contentJson: string): Promise<void> {
 
     const docDefinition = parseContentJson(contentJson);
     const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-    pdfDocGenerator.download();
+    pdfDocGenerator.download(docName);
 
   } catch (error) {
     console.error("Erro ao gerar PDF:", error);
