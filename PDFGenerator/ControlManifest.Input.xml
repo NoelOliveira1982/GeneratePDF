@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="Noels" constructor="PDFGenerator" version="0.0.2"
+  <control namespace="Noels" constructor="PDFGenerator" version="1.0.2"
     display-name-key="PDFGenerator" description-key="PDFGenerator description"
     control-type="standard">
     <external-service-usage enabled="false">
